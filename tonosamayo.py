@@ -10,18 +10,27 @@ import json
 # Streamlitのテーマを画像の色使いに近づけるカスタムCSS
 st.markdown("""
 <style>
-/* 全体の背景色 */
-body {
-    background-color: #F8F0E3; /* 明るい黄土色に近い */
+/* 全体の背景色と文字色を強制的に指定 */
+/* これにより、白飛びや文字色問題を改善 */
+html, body, [class^="st-"] { /* Streamlitの主要な要素全てに適用 */
+    background-color: #F8F0E3 !important; /* 明るい黄土色に近い */
+    color: #4A3B31 !important; /* 濃い茶色に近い */
 }
+
 /* Streamlitのメインコンテナの背景色 */
 .stApp {
     background-color: #F8F0E3;
 }
-/* テキストの色 */
-h1, h2, h3, h4, h5, h6, .st-bh, .st-bb, .st-bd { /* .st-bh, .st-bb, .st-bd はテキスト入力やセレクトボックスのラベルなど */
-    color: #4A3B31; /* 濃い茶色に近い */
+
+/* テキストの色 (より詳細に指定) */
+h1, h2, h3, h4, h5, h6,
+.st-bh, .st-bb, .st-bd, /* テキスト入力やセレクトボックスのラベルなど */
+p, span, div, li, strong, em /* その他の一般的なテキスト要素 */
+{
+    color: #4A3B31 !important; /* 濃い茶色に近い */
+    text-shadow: none !important; /* text-shadowは削除 */
 }
+
 /* Infoボックスの色 */
 div[data-testid="stInfo"] {
     background-color: #FFFACD; /* クリーム色 */
@@ -55,6 +64,8 @@ div[data-testid="stError"] {
     border-radius: 5px;
     font-weight: bold;
     padding: 10px 20px;
+    /* ボタンの上に要素が重なる可能性を減らすためにz-indexを設定 */
+    z-index: 1000; /* 他の要素より手前に表示 */
 }
 .stButton > button:hover {
     background-color: #A08040; /* ホバー時 */
@@ -75,6 +86,8 @@ div[data-testid="stError"] {
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
+    /* z-indexがボタンに影響しないように注意 */
+    z-index: 1; /* 通常の要素として扱う */
 }
 .audio-input-guide h4 {
     margin: 0 0 15px 0;
@@ -83,6 +96,16 @@ div[data-testid="stError"] {
 .audio-input-guide p {
     margin: 0;
     color: white;
+}
+
+/* ナビゲーションバーのテキスト色を強制的に濃くする */
+.navigation-bar .nav-step {
+    color: #4A3B31 !important; /* 強制的に濃い茶色 */
+    /* ナビゲーションバーもz-indexを考慮 */
+    z-index: 10;
+}
+.navigation-bar .nav-step.active {
+    color: #333 !important; /* アクティブなステップも濃い色に */
 }
 
 </style>
@@ -146,6 +169,8 @@ def show_universal_navigation():
         padding: 15px;
         border-radius: 10px;
         margin-bottom: 20px;
+        /* z-indexを高くして、常に手前に表示 */
+        z-index: 1001; 
     }
     .nav-step {
         display: inline-block;
@@ -153,13 +178,13 @@ def show_universal_navigation():
         padding: 8px 16px;
         background: rgba(245,245,220,0.5); /* 薄いクリーム色に近い背景 */
         border-radius: 20px;
-        color: #4A3B31; /* 濃い茶色に近い文字色 */
+        color: #4A3B31 !important; /* 濃い茶色に近い文字色を強制 */
         font-weight: bold;
         border: 1px solid rgba(245,245,220,0.8);
     }
     .nav-step.active {
         background: rgba(245,245,220,0.8); /* より濃いクリーム色に近い背景 */
-        color: #333; /* より濃い文字色 */
+        color: #333 !important; /* より濃い文字色を強制 */
     }
     </style>
     """, unsafe_allow_html=True)
@@ -840,7 +865,7 @@ def generate_description_from_owner_thought(owner_thought, menu_name):
     time.sleep(1)
     
     # モックの生成ロジック。実際の生成ではより高度な処理が必要。
-    base_description = f"{menu_name}は、{owner_thought[:50]}...という店主の想いから生まれました。"
+    base_description = f"{owner_thought[:50]}...という店主の想いから、{menu_name}が生まれました。"
     if "唐揚げ" in menu_name:
         description = base_description + "一口食べれば、秘伝のタレがジュワッと広がり、外はカリッ、中はジューシーな食感が楽しめます。二口目には、鶏肉本来の旨味と香ばしさが口いっぱいに広がり、ご飯が止まらなくなるでしょう。ぜひ揚げたてをお召し上がりください！"
     elif "焼き魚" in menu_name:
@@ -1212,5 +1237,4 @@ def main_flow():
 if __name__ == "__main__":
     # Streamlitのキャッシュクリア (開発中に変更が反映されない場合などに利用)
     # st.cache_data.clear() # 必要に応じてコメントを解除
-    main_flow()
-    
+    main_flow()   
