@@ -7,7 +7,7 @@ import json
 # 1. 共通設定とユーティリティ関数
 # ====================
 
-# 定義された新しいカラーパレットを基にしたカスタムCSS
+# 定義された新しいカラーパレットとボタンCSSを基にしたカスタムCSS
 st.markdown("""
 <style>
 /* カラーパレット (お客様指定の色) */
@@ -41,22 +41,19 @@ st.markdown("""
     --color-error-border: #F44336;
 }
 
-/* 全体の背景色と文字色 */
+/* 基本設定 */
 html, body, [class^="st-"] {
     background-color: var(--color-background-primary) !important;
     color: var(--color-text-primary) !important;
-    font-family: 'Helvetica Neue', Arial, sans-serif !important; /* フォントも指定 */
+    font-family: 'Helvetica Neue', Arial, sans-serif !important;
 }
 
 .stApp {
     background-color: var(--color-background-primary);
 }
 
-/* テキストの色 */
-h1, h2, h3, h4, h5, h6,
-.st-bh, .st-bb, .st-bd,
-p, span, div, li, strong, em
-{
+/* 全てのテキスト要素 */
+h1, h2, h3, h4, h5, h6, p, span, div, li, strong, em {
     color: var(--color-text-primary) !important;
     text-shadow: none !important;
 }
@@ -98,54 +95,64 @@ div[data-testid="stError"] {
     margin: 15px 0 !important;
 }
 
-/* 🎯 ボタンの完全統一 - HTMLプレビューと同じ仕様 */
+/* 🔥 超強力なCSS - 確実にボタンを茶色にする */
 
-/* Step 1: ボタンコンテナ全体をリセット (必要に応じて追加) */
-.stButton {
-    /* Streamlitデフォルトの余白や配置を調整したい場合にここに記述 */
-}
-
-/* Step 2: ボタン本体を完全に制御 */
+/* 🔥 STEP 1: 最も強力なボタン指定 - 全てのボタン要素を対象 */
+button,
+input[type="button"],
+input[type="submit"],
+.stButton button,
 .stButton > button,
-button[data-testid] {
+.stFormSubmitButton button,
+.stFormSubmitButton > button,
+.stDownloadButton button,
+.stDownloadButton > button,
+[data-testid="stButton"] button,
+[data-testid="stFormSubmitButton"] button,
+[data-testid="stDownloadButton"] button,
+[class*="stButton"] button,
+[class*="baseButton"],
+[class*="Button-"] {
     background-color: var(--color-button-normal) !important;
+    background: var(--color-button-normal) !important;
     color: var(--color-button-text) !important;
-    border: 2px solid var(--color-button-hover) !important; /* ホバー時と同じ濃いブラウンのボーダー */
+    border: 2px solid var(--color-button-hover) !important;
     border-radius: 8px !important;
     font-weight: bold !important;
     padding: 12px 24px !important;
     cursor: pointer !important;
-    font-size: 1em !important;
+    font-size: 16px !important; /* フォントサイズを固定 */
     transition: all 0.3s ease !important;
     margin: 10px 5px !important;
-    
-    /* 内部要素の継承を強制 */
     font-family: 'Helvetica Neue', Arial, sans-serif !important;
     text-decoration: none !important;
     text-align: center !important;
     display: inline-block !important;
     vertical-align: middle !important;
-    
-    /* Streamlit特有のスタイルをリセット */
-    box-shadow: none !important; /* デフォルトの影をリセット */
+    box-shadow: none !important;
     outline: none !important;
+    min-height: 2.5em !important;
 }
 
-/* Step 3: ボタン内部の全ての要素を統一 */
+/* 🔥 STEP 2: ボタン内部の全要素も強制的に統一 */
+button *,
+input[type="button"] *,
+input[type="submit"] *,
+.stButton button *,
 .stButton > button *,
-.stButton > button > *,
-.stButton > button div,
-.stButton > button div *,
-.stButton > button span,
-.stButton > button span *,
-button[data-testid] *,
-button[data-testid] > *,
-button[data-testid] div,
-button[data-testid] div *,
-button[data-testid] span,
-button[data-testid] span * {
+.stFormSubmitButton button *,
+.stFormSubmitButton > button *,
+.stDownloadButton button *,
+.stDownloadButton > button *,
+[data-testid="stButton"] button *,
+[data-testid="stFormSubmitButton"] button *,
+[data-testid="stDownloadButton"] button *,
+[class*="stButton"] button *,
+[class*="baseButton"] *,
+[class*="Button-"] * {
     background-color: transparent !important;
-    color: var(--color-button-text) !important; /* 白 */
+    background: transparent !important;
+    color: var(--color-button-text) !important;
     border: none !important;
     font-weight: bold !important;
     font-size: inherit !important;
@@ -157,104 +164,165 @@ button[data-testid] span * {
     padding: 0 !important;
 }
 
-/* Step 4: ホバー時も完全統一 */
+/* 🔥 STEP 3: ホバー時の強制指定 */
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+.stButton button:hover,
 .stButton > button:hover,
-button[data-testid]:hover {
+.stFormSubmitButton button:hover,
+.stFormSubmitButton > button:hover,
+.stDownloadButton button:hover,
+.stDownloadButton > button:hover,
+[data-testid="stButton"] button:hover,
+[data-testid="stFormSubmitButton"] button:hover,
+[data-testid="stDownloadButton"] button:hover,
+[class*="stButton"] button:hover,
+[class*="baseButton"]:hover,
+[class*="Button-"]:hover {
     background-color: var(--color-button-hover) !important;
+    background: var(--color-button-hover) !important;
     color: var(--color-button-text) !important;
     border-color: var(--color-button-hover) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important; /* ホバー時の影 */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
 }
 
+/* ホバー時の内部要素 */
+button:hover *,
+input[type="button"]:hover *,
+input[type="submit"]:hover *,
+.stButton button:hover *,
 .stButton > button:hover *,
-.stButton > button:hover > *,
-.stButton > button:hover div,
-.stButton > button:hover div *,
-.stButton > button:hover span,
-.stButton > button:hover span *,
-button[data-testid]:hover *,
-button[data-testid]:hover > *,
-button[data-testid]:hover div,
-button[data-testid]:hover div *,
-button[data-testid]:hover span,
-button[data-testid]:hover span * {
+.stFormSubmitButton button:hover *,
+.stFormSubmitButton > button:hover *,
+.stDownloadButton button:hover *,
+.stDownloadButton > button:hover *,
+[data-testid="stButton"] button:hover *,
+[data-testid="stFormSubmitButton"] button:hover *,
+[data-testid="stDownloadButton"] button:hover *,
+[class*="stButton"] button:hover *,
+[class*="baseButton"]:hover *,
+[class*="Button-"]:hover * {
     background-color: transparent !important;
-    color: var(--color-button-text) !important; /* 白 */
+    background: transparent !important;
+    color: var(--color-button-text) !important;
 }
 
-/* Step 5: アクティブ/フォーカス時も統一 */
+/* 🔥 STEP 4: アクティブ/フォーカス時も強制指定 */
+button:active,
+button:focus,
+input[type="button"]:active,
+input[type="button"]:focus,
+input[type="submit"]:active,
+input[type="submit"]:focus,
+.stButton button:active,
+.stButton button:focus,
 .stButton > button:active,
 .stButton > button:focus,
-button[data-testid]:active,
-button[data-testid]:focus {
-    background-color: #5D3A0F !important; /* より濃いブラウン */
-    color: var(--color-button-text) !important; /* 白 */
+.stFormSubmitButton button:active,
+.stFormSubmitButton button:focus,
+.stFormSubmitButton > button:active,
+.stFormSubmitButton > button:focus,
+.stDownloadButton button:active,
+.stDownloadButton button:focus,
+.stDownloadButton > button:active,
+.stDownloadButton > button:focus,
+[data-testid="stButton"] button:active,
+[data-testid="stButton"] button:focus,
+[data-testid="stFormSubmitButton"] button:active,
+[data-testid="stFormSubmitButton"] button:focus,
+[data-testid="stDownloadButton"] button:active,
+[data-testid="stDownloadButton"] button:focus,
+[class*="stButton"] button:active,
+[class*="stButton"] button:focus,
+[class*="baseButton"]:active,
+[class*="baseButton"]:focus,
+[class*="Button-"]:active,
+[class*="Button-"]:focus {
+    background-color: #5D3A0F !important;
+    background: #5D3A0F !important;
+    color: var(--color-button-text) !important;
     border-color: #5D3A0F !important;
     transform: translateY(1px) !important;
-    outline: 2px solid #A0522D !important; /* アウトラインカラー */
+    outline: 2px solid #A0522D !important;
     outline-offset: 2px !important;
 }
 
+/* アクティブ/フォーカス時の内部要素 */
+button:active *,
+button:focus *,
+input[type="button"]:active *,
+input[type="button"]:focus *,
+input[type="submit"]:active *,
+input[type="submit"]:focus *,
+.stButton button:active *,
+.stButton button:focus *,
 .stButton > button:active *,
 .stButton > button:focus *,
-button[data-testid]:active *,
-button[data-testid]:focus * {
+.stFormSubmitButton button:active *,
+.stFormSubmitButton button:focus *,
+.stFormSubmitButton > button:active *,
+.stFormSubmitButton > button:focus *,
+.stDownloadButton button:active *,
+.stDownloadButton button:focus *,
+.stDownloadButton > button:active *,
+.stDownloadButton > button:focus *,
+[data-testid="stButton"] button:active *,
+[data-testid="stButton"] button:focus *,
+[data-testid="stFormSubmitButton"] button:active *,
+[data-testid="stFormSubmitButton"] button:focus *,
+[data-testid="stDownloadButton"] button:active *,
+[data-testid="stDownloadButton"] button:focus *,
+[class*="stButton"] button:active *,
+[class*="stButton"] button:focus *,
+[class*="baseButton"]:active *,
+[class*="baseButton"]:focus *,
+[class*="Button-"]:active *,
+[class*="Button-"]:focus * {
     background-color: transparent !important;
-    color: var(--color-button-text) !important; /* 白 */
+    background: transparent !important;
+    color: var(--color-button-text) !important;
 }
 
-/* Step 6: Streamlit特有のクラスも対応 */
-/* stButton以外のStreamlitのボタンにも適用されるように調整 */
-[data-testid="stButton"] button,
-[class*="stButton"] button,
-[class*="baseButton"] { /* baseButtonはStreamlitの内部クラスで、他のボタンのベースになることがある */
+/* 🔥 STEP 5: 非常に具体的なStreamlit内部クラス指定 */
+[class*="element-container"] button,
+[class*="stButton"] [class*="baseButton"],
+[class*="stFormSubmitButton"] [class*="baseButton"],
+[class*="stDownloadButton"] [class*="baseButton"] {
     background-color: var(--color-button-normal) !important;
+    background: var(--color-button-normal) !important;
+    color: var(--color-button-text) !important;
+    border: 2px solid var(--color-button-hover) !important;
+}
+
+[class*="element-container"] button *,
+[class*="stButton"] [class*="baseButton"] *,
+[class*="stFormSubmitButton"] [class*="baseButton"] *,
+[class*="stDownloadButton"] [class*="baseButton"] * {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: var(--color-button-text) !important;
+}
+
+/* 🔥 STEP 6: 最終手段 - 全てのボタン類似要素 */
+[role="button"],
+[type="button"],
+[type="submit"] {
+    background-color: var(--color-button-normal) !important;
+    background: var(--color-button-normal) !important;
     color: var(--color-button-text) !important;
     border: 2px solid var(--color-button-hover) !important;
     border-radius: 8px !important;
     font-weight: bold !important;
     padding: 12px 24px !important;
-    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.7) !important; /* ここで影を再適用 */
 }
 
-[data-testid="stButton"] button *,
-[class*="stButton"] button *,
-[class*="baseButton"] * {
+[role="button"] *,
+[type="button"] *,
+[type="submit"] * {
     background-color: transparent !important;
-    color: var(--color-button-text) !important;
-    border: none !important;
-}
-
-/* フォームボタンも同様に */
-.stFormSubmitButton > button {
-    background-color: var(--color-button-normal) !important;
-    color: var(--color-button-text) !important;
-    border: 2px solid var(--color-button-hover) !important;
-    border-radius: 8px !important;
-    font-weight: bold !important;
-    padding: 12px 24px !important;
-    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.7) !important;
-}
-
-.stFormSubmitButton > button * {
-    background-color: transparent !important;
-    color: var(--color-button-text) !important;
-}
-
-/* ダウンロードボタンも同様に */
-.stDownloadButton > button {
-    background-color: var(--color-button-normal) !important;
-    color: var(--color-button-text) !important;
-    border: 2px solid var(--color-button-hover) !important;
-    border-radius: 8px !important;
-    font-weight: bold !important;
-    padding: 12px 24px !important;
-    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.7) !important;
-}
-
-.stDownloadButton > button * {
-    background-color: transparent !important;
+    background: transparent !important;
     color: var(--color-button-text) !important;
 }
 
@@ -425,6 +493,101 @@ hr {
     margin: 30px 0 !important;
 }
 </style>
+""", unsafe_allow_html=True)
+
+# JavaScriptを使った強制スタイル適用
+st.markdown("""
+<script>
+// ページ読み込み後にボタンスタイルを強制適用
+document.addEventListener('DOMContentLoaded', function() {
+    function forceButtonStyle() {
+        // 全てのボタン要素を取得
+        const buttons = document.querySelectorAll('button, [role="button"], input[type="button"], input[type="submit"]');
+        
+        buttons.forEach(button => {
+            // 強制的にスタイルを適用
+            button.style.setProperty('background-color', '#8B4513', 'important');
+            button.style.setProperty('background', '#8B4513', 'important');
+            button.style.setProperty('color', '#FFFFFF', 'important');
+            button.style.setProperty('border', '2px solid #654321', 'important');
+            button.style.setProperty('border-radius', '8px', 'important');
+            button.style.setProperty('font-weight', 'bold', 'important');
+            button.style.setProperty('padding', '12px 24px', 'important');
+            button.style.setProperty('font-size', '16px', 'important');
+            button.style.setProperty('min-height', '2.5em', 'important'); /* min-heightもJSで適用 */
+            
+            // 内部要素も強制適用
+            const innerElements = button.querySelectorAll('*');
+            innerElements.forEach(element => {
+                element.style.setProperty('background-color', 'transparent', 'important');
+                element.style.setProperty('background', 'transparent', 'important');
+                element.style.setProperty('color', '#FFFFFF', 'important');
+                element.style.setProperty('border', 'none', 'important');
+            });
+
+            // ホバー時のスタイル
+            button.addEventListener('mouseenter', function() {
+                this.style.setProperty('background-color', '#654321', 'important');
+                this.style.setProperty('background', '#654321', 'important');
+                this.style.setProperty('border-color', '#654321', 'important');
+                this.style.setProperty('transform', 'translateY(-1px)', 'important');
+                this.style.setProperty('box-shadow', '0 4px 8px rgba(0,0,0,0.2)', 'important');
+            });
+            button.addEventListener('mouseleave', function() {
+                this.style.setProperty('background-color', '#8B4513', 'important');
+                this.style.setProperty('background', '#8B4513', 'important');
+                this.style.setProperty('border-color', '#654321', 'important'); /* 通常時のボーダー色 */
+                this.style.setProperty('transform', 'translateY(0px)', 'important');
+                this.style.setProperty('box-shadow', 'none', 'important'); /* 通常時は影なし */
+            });
+
+            // アクティブ/フォーカス時のスタイル
+            button.addEventListener('mousedown', function() {
+                this.style.setProperty('background-color', '#5D3A0F', 'important');
+                this.style.setProperty('background', '#5D3A0F', 'important');
+                this.style.setProperty('border-color', '#5D3A0F', 'important');
+                this.style.setProperty('transform', 'translateY(1px)', 'important');
+                this.style.setProperty('outline', '2px solid #A0522D', 'important');
+                this.style.setProperty('outline-offset', '2px', 'important');
+            });
+            button.addEventListener('mouseup', function() {
+                // マウスアップでホバー状態に戻るか、通常状態に戻るか
+                if (button.matches(':hover')) {
+                    this.style.setProperty('background-color', '#654321', 'important');
+                    this.style.setProperty('background', '#654321', 'important');
+                    this.style.setProperty('border-color', '#654321', 'important');
+                    this.style.setProperty('transform', 'translateY(-1px)', 'important');
+                    this.style.setProperty('box-shadow', '0 4px 8px rgba(0,0,0,0.2)', 'important');
+                } else {
+                    this.style.setProperty('background-color', '#8B4513', 'important');
+                    this.style.setProperty('background', '#8B4513', 'important');
+                    this.style.setProperty('border-color', '#654321', 'important');
+                    this.style.setProperty('transform', 'translateY(0px)', 'important');
+                    this.style.setProperty('box-shadow', 'none', 'important');
+                }
+                this.style.setProperty('outline', 'none', 'important'); /* アウトラインをリセット */
+            });
+            button.addEventListener('focus', function() {
+                this.style.setProperty('outline', '2px solid #A0522D', 'important');
+                this.style.setProperty('outline-offset', '2px', 'important');
+            });
+            button.addEventListener('blur', function() {
+                this.style.setProperty('outline', 'none', 'important');
+            });
+        });
+    }
+    
+    // 初回実行
+    forceButtonStyle();
+    
+    // Streamlitの再レンダリング後も適用
+    const observer = new MutationObserver(forceButtonStyle);
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // 定期的にも実行（念のため）
+    setInterval(forceButtonStyle, 1000);
+});
+</script>
 """, unsafe_allow_html=True)
 
 # ====================
@@ -920,7 +1083,7 @@ def get_owner_thoughts_questions():
             ]
         },
         "international": {
-            "title": "🌍 国際的なお客様について",
+            "title": "� 国際的なお客様について",
             "questions": [
                 {
                     "key": "foreign_customers",
