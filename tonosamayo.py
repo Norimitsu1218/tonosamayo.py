@@ -7,107 +7,423 @@ import json
 # 1. 共通設定とユーティリティ関数
 # ====================
 
-# Streamlitのテーマを画像の色使いに近づけるカスタムCSS
+# 定義された新しいカラーパレットを基にしたカスタムCSS
 st.markdown("""
 <style>
-/* 全体の背景色と文字色を強制的に指定 */
-/* これにより、白飛びや文字色問題を改善 */
-html, body, [class^="st-"] { /* Streamlitの主要な要素全てに適用 */
-    background-color: #F8F0E3 !important; /* 明るい黄土色に近い */
-    color: #4A3B31 !important; /* 濃い茶色に近い */
+/* カラーパレット (お客様指定の色) */
+:root {
+    --color-background-primary: #F8F0E3;      /* 非常に薄い黄みがかったベージュ */
+    --color-text-primary: #1A1A1A;           /* 非常に濃いグレー（ほぼ黒） */
+
+    --color-button-normal: #8B4513;          /* ボタン サドルブラウン */
+    --color-button-hover: #654321;           /* ボタンが押された時に変わる色 より濃いブラウン */
+    --color-button-text: #FFFFFF;            /* ボタンの中の文字 純白 */
+
+    --color-accent: #8B4513;                 /* アクセントカラー (サドルブラウン) */
+    --color-input-background: #FFFFFF;       /* 入力フィールドの背景 */
+    --color-input-border: #8B4513;           /* 入力フィールドのボーダー (サドルブラウン) */
+
+    /* メッセージボックスの色 */
+    --color-info-bg: #E8F4F8;
+    --color-info-text: #0D47A1;
+    --color-info-border: #1976D2;
+
+    --color-warning-bg: #FFF8E1;
+    --color-warning-text: #E65100;
+    --color-warning-border: #FF9800;
+
+    --color-success-bg: #E8F5E8;
+    --color-success-text: #1B5E20;
+    --color-success-border: #4CAF50;
+
+    --color-error-bg: #FFEBEE;
+    --color-error-text: #B71C1C;
+    --color-error-border: #F44336;
 }
 
-/* Streamlitのメインコンテナの背景色 */
+/* 全体の背景色と文字色 */
+html, body, [class^="st-"] {
+    background-color: var(--color-background-primary) !important;
+    color: var(--color-text-primary) !important;
+    font-family: 'Helvetica Neue', Arial, sans-serif !important; /* フォントも指定 */
+}
+
 .stApp {
-    background-color: #F8F0E3;
+    background-color: var(--color-background-primary);
 }
 
-/* テキストの色 (より詳細に指定) */
+/* テキストの色 */
 h1, h2, h3, h4, h5, h6,
-.st-bh, .st-bb, .st-bd, /* テキスト入力やセレクトボックスのラベルなど */
-p, span, div, li, strong, em /* その他の一般的なテキスト要素 */
+.st-bh, .st-bb, .st-bd,
+p, span, div, li, strong, em
 {
-    color: #4A3B31 !important; /* 濃い茶色に近い */
-    text-shadow: none !important; /* text-shadowは削除 */
+    color: var(--color-text-primary) !important;
+    text-shadow: none !important;
 }
 
 /* Infoボックスの色 */
 div[data-testid="stInfo"] {
-    background-color: #FFFACD; /* クリーム色 */
-    color: #4A3B31;
-    border-left: 5px solid #E0C068; /* 黄土色 */
+    background-color: var(--color-info-bg) !important;
+    color: var(--color-info-text) !important;
+    border-left: 4px solid var(--color-info-border) !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+    margin: 15px 0 !important;
 }
 /* Warningボックスの色 */
 div[data-testid="stWarning"] {
-    background-color: #FFFACD; /* クリーム色 */
-    color: #4A3B31;
-    border-left: 5px solid #FFD700; /* 少し明るい黄色 */
+    background-color: var(--color-warning-bg) !important;
+    color: var(--color-warning-text) !important;
+    border-left: 4px solid var(--color-warning-border) !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+    margin: 15px 0 !important;
 }
 /* Successボックスの色 */
 div[data-testid="stSuccess"] {
-    background-color: #E6FFE6; /* 薄い緑 */
-    color: #006400; /* 濃い緑 */
-    border-left: 5px solid #32CD32; /* 明るい緑 */
+    background-color: var(--color-success-bg) !important;
+    color: var(--color-success-text) !important;
+    border-left: 4px solid var(--color-success-border) !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+    margin: 15px 0 !important;
 }
 /* Errorボックスの色 */
 div[data-testid="stError"] {
-    background-color: #FFCCCC; /* 薄い赤 */
-    color: #CC0000; /* 濃い赤 */
-    border-left: 5px solid #FF0000; /* 赤 */
+    background-color: var(--color-error-bg) !important;
+    color: var(--color-error-text) !important;
+    border-left: 4px solid var(--color-error-border) !important;
+    padding: 16px !important;
+    border-radius: 8px !important;
+    margin: 15px 0 !important;
 }
 
-/* ボタンのスタイル */
-.stButton > button {
-    background-color: #E0C068; /* 黄土色 */
-    color: #4A3B31; /* 濃い茶色 */
-    border: 1px solid #A08040; /* 少し濃い黄土色 */
-    border-radius: 5px;
-    font-weight: bold;
-    padding: 10px 20px;
-    /* ボタンの上に要素が重なる可能性を減らすためにz-indexを設定 */
-    z-index: 1000; /* 他の要素より手前に表示 */
+/* 🎯 ボタンの完全統一 - HTMLプレビューと同じ仕様 */
+
+/* Step 1: ボタンコンテナ全体をリセット (必要に応じて追加) */
+.stButton {
+    /* Streamlitデフォルトの余白や配置を調整したい場合にここに記述 */
 }
-.stButton > button:hover {
-    background-color: #A08040; /* ホバー時 */
-    color: white;
+
+/* Step 2: ボタン本体を完全に制御 */
+.stButton > button,
+button[data-testid] {
+    background-color: var(--color-button-normal) !important;
+    color: var(--color-button-text) !important;
+    border: 2px solid var(--color-button-hover) !important; /* ホバー時と同じ濃いブラウンのボーダー */
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    padding: 12px 24px !important;
+    cursor: pointer !important;
+    font-size: 1em !important;
+    transition: all 0.3s ease !important;
+    margin: 10px 5px !important;
+    
+    /* 内部要素の継承を強制 */
+    font-family: 'Helvetica Neue', Arial, sans-serif !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    
+    /* Streamlit特有のスタイルをリセット */
+    box-shadow: none !important; /* デフォルトの影をリセット */
+    outline: none !important;
 }
+
+/* Step 3: ボタン内部の全ての要素を統一 */
+.stButton > button *,
+.stButton > button > *,
+.stButton > button div,
+.stButton > button div *,
+.stButton > button span,
+.stButton > button span *,
+button[data-testid] *,
+button[data-testid] > *,
+button[data-testid] div,
+button[data-testid] div *,
+button[data-testid] span,
+button[data-testid] span * {
+    background-color: transparent !important;
+    color: var(--color-button-text) !important; /* 白 */
+    border: none !important;
+    font-weight: bold !important;
+    font-size: inherit !important;
+    font-family: inherit !important;
+    text-decoration: none !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Step 4: ホバー時も完全統一 */
+.stButton > button:hover,
+button[data-testid]:hover {
+    background-color: var(--color-button-hover) !important;
+    color: var(--color-button-text) !important;
+    border-color: var(--color-button-hover) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important; /* ホバー時の影 */
+}
+
+.stButton > button:hover *,
+.stButton > button:hover > *,
+.stButton > button:hover div,
+.stButton > button:hover div *,
+.stButton > button:hover span,
+.stButton > button:hover span *,
+button[data-testid]:hover *,
+button[data-testid]:hover > *,
+button[data-testid]:hover div,
+button[data-testid]:hover div *,
+button[data-testid]:hover span,
+button[data-testid]:hover span * {
+    background-color: transparent !important;
+    color: var(--color-button-text) !important; /* 白 */
+}
+
+/* Step 5: アクティブ/フォーカス時も統一 */
+.stButton > button:active,
+.stButton > button:focus,
+button[data-testid]:active,
+button[data-testid]:focus {
+    background-color: #5D3A0F !important; /* より濃いブラウン */
+    color: var(--color-button-text) !important; /* 白 */
+    border-color: #5D3A0F !important;
+    transform: translateY(1px) !important;
+    outline: 2px solid #A0522D !important; /* アウトラインカラー */
+    outline-offset: 2px !important;
+}
+
+.stButton > button:active *,
+.stButton > button:focus *,
+button[data-testid]:active *,
+button[data-testid]:focus * {
+    background-color: transparent !important;
+    color: var(--color-button-text) !important; /* 白 */
+}
+
+/* Step 6: Streamlit特有のクラスも対応 */
+/* stButton以外のStreamlitのボタンにも適用されるように調整 */
+[data-testid="stButton"] button,
+[class*="stButton"] button,
+[class*="baseButton"] { /* baseButtonはStreamlitの内部クラスで、他のボタンのベースになることがある */
+    background-color: var(--color-button-normal) !important;
+    color: var(--color-button-text) !important;
+    border: 2px solid var(--color-button-hover) !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    padding: 12px 24px !important;
+    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.7) !important; /* ここで影を再適用 */
+}
+
+[data-testid="stButton"] button *,
+[class*="stButton"] button *,
+[class*="baseButton"] * {
+    background-color: transparent !important;
+    color: var(--color-button-text) !important;
+    border: none !important;
+}
+
+/* フォームボタンも同様に */
+.stFormSubmitButton > button {
+    background-color: var(--color-button-normal) !important;
+    color: var(--color-button-text) !important;
+    border: 2px solid var(--color-button-hover) !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    padding: 12px 24px !important;
+    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.7) !important;
+}
+
+.stFormSubmitButton > button * {
+    background-color: transparent !important;
+    color: var(--color-button-text) !important;
+}
+
+/* ダウンロードボタンも同様に */
+.stDownloadButton > button {
+    background-color: var(--color-button-normal) !important;
+    color: var(--color-button-text) !important;
+    border: 2px solid var(--color-button-hover) !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    padding: 12px 24px !important;
+    box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.7) !important;
+}
+
+.stDownloadButton > button * {
+    background-color: transparent !important;
+    color: var(--color-button-text) !important;
+}
+
+/* ラジオボタンのスタイル (既存のものを維持しつつ、カラーパレットに合わせる) */
+.stRadio > label {
+    color: var(--color-text-primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 8px !important;
+}
+.stRadio > label > div[data-testid="stFlex"] > div:first-child {
+    border: 2px solid var(--color-text-primary) !important;
+    background-color: var(--color-input-background) !important; /* 白 */
+    border-radius: 50% !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    margin-right: 10px !important;
+    transition: all 0.2s ease-in-out !important;
+}
+.stRadio > label > div[data-testid="stFlex"] > div:first-child > div {
+    background-color: var(--color-button-normal) !important; /* サドルブラウン */
+    border-radius: 50% !important;
+    width: 10px !important;
+    height: 10px !important;
+    opacity: 0 !important;
+    transform: scale(0) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+.stRadio input[type="radio"]:checked + div[data-testid="stFlex"] > div:first-child > div {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}
+.stRadio > label:hover > div[data-testid="stFlex"] > div:first-child {
+    border-color: var(--color-button-normal) !important;
+    box-shadow: 0 0 5px rgba(139, 69, 19, 0.5) !important; /* サドルブラウンの影 */
+}
+
 /* テキスト入力フィールド */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea,
 .stSelectbox > div > div > div > div {
-    background-color: #FFFFFF; /* 白 */
-    color: #4A3B31;
-    border: 1px solid #A08040;
-    border-radius: 5px;
+    background-color: var(--color-input-background) !important;
+    color: var(--color-text-primary) !important;
+    border: 2px solid var(--color-input-border) !important; /* サドルブラウンの太い枠線 */
+    border-radius: 6px !important;
+    padding: 10px !important;
+    font-size: 1em !important;
 }
+.stTextInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus,
+.stSelectbox > div > div > div > div:focus {
+    outline: none !important;
+    border-color: var(--color-button-hover) !important; /* フォーカス時により濃いブラウン */
+    box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.4) !important; /* フォーカス時の影も強調 */
+}
+
 /* 音声入力案内のカスタムスタイル */
 .audio-input-guide {
-    background: linear-gradient(45deg, #FF9A9E, #FECFEF); /* グラデーション背景 */
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    /* z-indexがボタンに影響しないように注意 */
-    z-index: 1; /* 通常の要素として扱う */
+    background: linear-gradient(45deg, #8B4513, #A0522D) !important; /* サドルブラウンから少し明るいブラウンへのグラデーション */
+    padding: 24px !important;
+    border-radius: 12px !important;
+    margin: 20px 0 !important;
+    text-align: center !important;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3) !important; /* 影を追加 */
 }
-.audio-input-guide h4 {
-    margin: 0 0 15px 0;
-    color: white;
-}
-.audio-input-guide p {
-    margin: 0;
-    color: white;
+.audio-input-guide h4, .audio-input-guide p {
+    color: #FFFFFF !important; /* 白 */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5) !important;
 }
 
-/* ナビゲーションバーのテキスト色を強制的に濃くする */
-.navigation-bar .nav-step {
-    color: #4A3B31 !important; /* 強制的に濃い茶色 */
-    /* ナビゲーションバーもz-indexを考慮 */
-    z-index: 10;
+/* ナビゲーションバーのスタイル */
+.navigation-bar {
+    background-color: #FFFFFF !important; /* 白 */
+    border: 1px solid var(--color-accent) !important; /* サドルブラウン */
+    border-radius: 10px !important;
+    padding: 15px !important;
+    margin-bottom: 30px !important;
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2) !important; /* ナビバーにも影を追加 */
 }
-.navigation-bar .nav-step.active {
-    color: #333 !important; /* アクティブなステップも濃い色に */
+.nav-step {
+    color: var(--color-text-primary) !important; /* 非常に濃いグレー */
+    font-weight: 500 !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    transition: all 0.3s ease !important;
+    background-color: #F0F0F0 !important; /* 非アクティブなステップの背景をソリッドな薄いグレーに */
+    border: 1px solid rgba(0, 0, 0, 0.1) !important; /* 薄いボーダーで区別 */
+}
+.nav-step.active {
+    color: var(--color-text-primary) !important; /* アクティブなステップの文字色を濃いグレーに */
+    font-weight: bold !important;
+    background-color: #FFFFFF !important; /* アクティブなステップの背景を白に */
+    border: 1px solid var(--color-accent) !important; /* アクティブなステップのボーダーをサドルブラウンに */
 }
 
+/* 手順リスト */
+.steps { /* HTMLプレビューの.stepsに対応 */
+    background-color: #FFFFFF !important; /* 白 */
+    border: 1px solid var(--color-accent) !important; /* サドルブラウン */
+    border-radius: 10px !important;
+    padding: 20px !important;
+    margin: 20px 0 !important;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2) !important; /* 影を追加 */
+}
+.step-item { /* HTMLプレビューの.step-itemに対応 */
+    display: flex !important;
+    align-items: center !important;
+    margin: 15px 0 !important;
+    padding: 10px !important;
+    background-color: var(--color-background-primary) !important; /* 非常に薄い黄みがかったベージュ */
+    border-radius: 8px !important;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1) !important; /* 各ステップアイテムにも影を追加 */
+}
+.step-number { /* HTMLプレビューの.step-numberに対応 */
+    background-color: var(--color-accent) !important; /* サドルブラウン */
+    color: #FFFFFF !important; /* 白 */
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: bold !important;
+    margin-right: 15px !important;
+}
+.step-text { /* HTMLプレビューの.step-textに対応 */
+    color: var(--color-text-primary) !important; /* 非常に濃いグレー */
+    font-weight: 500 !important;
+}
+
+
+/* デモ用のメトリクス */
+.metrics {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 20px !important;
+    margin: 20px 0 !important;
+}
+.metric-card {
+    background-color: #FFFFFF !important; /* 白 */
+    border: 1px solid var(--color-accent) !important; /* サドルブラウン */
+    border-radius: 8px !important;
+    padding: 20px !important;
+    text-align: center !important;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2) !important; /* 影を追加 */
+}
+.metric-value {
+    font-size: 2em !important;
+    font-weight: bold !important;
+    color: var(--color-accent) !important; /* サドルブラウン */
+}
+.metric-label {
+    color: var(--color-text-primary) !important; /* 非常に濃いグレー */
+    font-size: 0.9em !important;
+    margin-top: 5px !important;
+}
+
+/* その他の要素の調整 */
+hr {
+    border: 1px solid var(--color-accent) !important; /* サドルブラウン */
+    margin: 30px 0 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -160,44 +476,48 @@ def show_universal_navigation():
     """
     全ページ共通のステップナビゲーションバーを表示する。
     現在のステップをハイライトし、ユーザーに全体の進捗を示す。
-    画像「トノサマグルメ.jpg」の色使いを反映。
     """
     st.markdown("""
     <style>
+    /* ナビゲーションバーのスタイル */
     .navigation-bar {
-        background: linear-gradient(90deg, #E0C068, #A08040); /* 天賦の色味に近いグラデーション */
-        padding: 15px;
+        background-color: #FFFFFF; /* 白 */
+        border: 1px solid var(--color-accent); /* サドルブラウン */
         border-radius: 10px;
-        margin-bottom: 20px;
-        /* z-indexを高くして、常に手前に表示 */
-        z-index: 1001; 
+        padding: 15px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     }
     .nav-step {
-        display: inline-block;
-        margin: 0 15px;
+        color: var(--color-text-primary);
+        font-weight: 500;
         padding: 8px 16px;
-        background: rgba(245,245,220,0.5); /* 薄いクリーム色に近い背景 */
-        border-radius: 20px;
-        color: #4A3B31 !important; /* 濃い茶色に近い文字色を強制 */
-        font-weight: bold;
-        border: 1px solid rgba(245,245,220,0.8);
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        background-color: #F0F0F0; /* 非アクティブなステップの背景をソリッドな薄いグレーに */
+        border: 1px solid rgba(0, 0, 0, 0.1);
     }
     .nav-step.active {
-        background: rgba(245,245,220,0.8); /* より濃いクリーム色に近い背景 */
-        color: #333 !important; /* より濃い文字色を強制 */
+        color: var(--color-text-primary);
+        font-weight: bold;
+        background-color: #FFFFFF; /* アクティブなステップの背景を白に */
+        border: 1px solid var(--color-accent);
     }
     </style>
     """, unsafe_allow_html=True)
 
     steps = ["ログイン", "アップロード", "想いヒアリング", "詳細設定", "完了"]
-    current = st.session_state.get("current_step", 0) # current_stepが設定されていない場合のデフォルト値を0に
-    
+    current = st.session_state.get("current_step", 0)
+
     nav_html = '<div class="navigation-bar">'
     for i, step in enumerate(steps):
         active_class = "active" if i == current else ""
         nav_html += f'<span class="nav-step {active_class}">{i+1}. {step}</span>'
     nav_html += '</div>'
-    
+
     st.markdown(nav_html, unsafe_allow_html=True)
 
 # ====================
@@ -212,13 +532,12 @@ def show_login_page():
     ログイン成功後、次のステップへ遷移する。
     """
     # セッション状態の初期化
-    # アプリケーションが初めて起動されたときに、st.session_stateの変数を設定
     if 'current_step' not in st.session_state:
-        st.session_state.current_step = 0 # 現在のステップ (0:ログイン, 1:アップロード, ...)
+        st.session_state.current_step = 0
     if 'logged_in' not in st.session_state:
-        st.session_state.logged_in = False # ログイン状態
+        st.session_state.logged_in = False
     if 'store_id' not in st.session_state:
-        st.session_state.store_id = "" # 入力されたStore ID
+        st.session_state.store_id = ""
 
     # 共通ナビゲーションバーを表示
     show_universal_navigation()
@@ -233,51 +552,45 @@ def show_login_page():
     # Store ID入力フォーム
     store_id_input = st.text_input(
         "あなたのストアIDを入力してください",
-        value=st.session_state.store_id, # 以前入力した値があれば表示を保持
+        value=st.session_state.store_id,
         placeholder="例: TONOSAMA001",
-        key="store_id_input" # Streamlitのwidget keyはユニークである必要がある
+        key="store_id_input"
     )
-    
+
     # 責任者ナンバー入力フォーム
     responsible_number_input = st.text_input(
         "責任者ナンバー",
-        type="password", # パスワードとして表示
+        type="password",
         placeholder="例: 12345",
         key="responsible_number_input"
     )
 
     # ログインボタン
     if st.button("ログイン", key="login_button"):
-        if store_id_input and responsible_number_input: # Store IDと責任者ナンバーが入力されているか確認
-            # 責任者ナンバーの検証ロジックをここに追加 (例: 特定のハードコードされた値、DB参照など)
-            # 現在はダミーで「99999」を正しいとする
-            if responsible_number_input != "99999": # 責任者ナンバーが間違っていた場合
+        if store_id_input and responsible_number_input:
+            if responsible_number_input != "99999":
                 st.error("❌ 無効な責任者ナンバーです。")
                 st.session_state.logged_in = False
-            else: # 責任者ナンバーが正しい場合
-                st.session_state.store_id = store_id_input # 入力値をセッションに保存
+            else:
+                st.session_state.store_id = store_id_input
 
                 # 認証と決済状況の確認
                 auth_success = authenticate_user(st.session_state.store_id)
                 payment_status = check_payment_status(st.session_state.store_id)
 
                 if auth_success and payment_status == "paid":
-                    # 認証と決済が両方成功した場合
                     st.success("✅ ログインに成功しました！")
-                    st.session_state.logged_in = True # ログイン状態をTrueに
-                    st.session_state.current_step = 1 # 次のステップ (STEP2: メニュー表アップロード) へ
-                    time.sleep(1) # ユーザーにメッセージを読ませるための短い待機
-                    st.rerun() # ページを再ロードして次のステップへ遷移
+                    st.session_state.logged_in = True
+                    st.session_state.current_step = 1
+                    time.sleep(1)
+                    st.rerun()
                 elif auth_success and payment_status != "paid":
-                    # Store IDは有効だが決済が完了していない場合
                     st.warning("⚠️ ストアIDは確認できましたが、決済が完了していません。代理店にご確認ください。")
                     st.session_state.logged_in = False
                 else:
-                    # 無効なStore IDの場合
                     st.error("❌ 無効なストアIDです。もう一度お確かめください。")
                     st.session_state.logged_in = False
         else:
-            # Store IDまたは責任者ナンバーが未入力の場合
             st.warning("ストアIDと責任者ナンバーを入力してください。")
 
     st.markdown("---")
@@ -372,21 +685,21 @@ def show_menu_upload_page():
         st.write(f"ファイル名: {uploaded_file.name}")
         # アップロードされたファイルが画像であればプレビューを表示
         if uploaded_file.type.startswith('image'):
-            st.image(uploaded_file, caption='アップロードされたメニュー表', use_column_width=True)
-        
+            st.image(uploaded_file, caption='アップロードされたメニュー表', use_container_width=True)
+
         # 処理がまだ実行されていなければ、開始ボタンを表示
         if not st.session_state.ocr_processed:
             st.warning("アップロードされたファイルはまだ処理されていません。「メニュー情報読み取り開始」ボタンをクリックしてください。")
-            
+
             # 処理開始ボタン
             if st.button("メニュー情報読み取り開始", key="start_ocr_button"):
                 with st.spinner("メニュー情報読み取り中..."):
                     # Google Driveにファイルを保存するシミュレーション
                     uploaded_file_path = simulate_drive_upload(uploaded_file, st.session_state.store_id)
-                    
+
                     # 処理をシミュレート
                     ocr_data = process_ocr_with_gemini(uploaded_file_path)
-                    
+
                     st.session_state.ocr_results = ocr_data
                     st.session_state.ocr_processed = True # 処理完了フラグを設定
                     st.success("メニュー情報の読み取りが完了しました！")
@@ -410,7 +723,7 @@ def show_menu_upload_page():
                     "should_introduce": True, # デフォルトで「掲載する」にチェック
                     "order": i # 初期表示順序
                 })
-        
+
         # 新しいメニューを追加するボタン
         st.markdown("---")
         st.subheader("手動でメニューを追加する")
@@ -435,30 +748,30 @@ def show_menu_upload_page():
             # st.expanderを使って各メニューの詳細を折りたたみ可能にする
             with st.expander(f"メニュー {i+1}: {menu['name']} （{menu['price']}）"):
                 col1, col2 = st.columns([0.6, 0.4]) # レイアウトを2列に分割
-                
+
                 with col1:
                     menu['name'] = st.text_input(
-                        f"メニュー名 (日本語)", 
-                        value=menu['name'], 
+                        f"メニュー名 (日本語)",
+                        value=menu['name'],
                         key=f"name_{menu['id']}" # Streamlitのwidget keyはユニークに
                     )
                     menu['price'] = st.text_input(
-                        f"お値段 (税込)", 
-                        value=menu['price'], 
+                        f"お値段 (税込)",
+                        value=menu['price'],
                         key=f"price_{menu['id']}"
                     )
                     # カテゴリー選択 (現在のカテゴリーがリストになければデフォルトを0に)
                     category_index = MENU_CATEGORIES.index(menu['category']) if menu['category'] in MENU_CATEGORIES else 0
                     menu['category'] = st.selectbox(
-                        f"カテゴリー", 
-                        options=MENU_CATEGORIES, 
+                        f"カテゴリー",
+                        options=MENU_CATEGORIES,
                         index=category_index,
                         key=f"category_{menu['id']}"
                     )
                 with col2:
                     menu['should_introduce'] = st.checkbox(
                         "このメニューを掲載する",
-                        value=menu['should_introduce'], 
+                        value=menu['should_introduce'],
                         key=f"introduce_{menu['id']}"
                     )
                     # メニュー削除ボタン
@@ -479,17 +792,17 @@ def show_menu_upload_page():
             # 現在のメニュー順序を表示 (1から始まる番号)
             current_order_display = ",".join([str(m['order']+1) for m in sorted(st.session_state.finalized_menus, key=lambda x: x['order'])])
             new_order_str = st.text_input(
-                "新しいメニューの並び順", 
+                "新しいメニューの並び順",
                 value=current_order_display,
                 key="new_menu_order_input"
             )
-            
+
             # 並び順更新ボタン
             if st.button("並び順を更新", key="update_order_button"):
                 try:
                     # 入力された文字列を数値のリストに変換 (1から始まる番号を0から始まるインデックスに)
                     new_order_indices = [int(x.strip()) - 1 for x in new_order_str.split(',')]
-                    
+
                     # 入力値のバリデーション (メニュー数と一致するか、重複がないか、範囲内か)
                     if len(new_order_indices) != len(st.session_state.finalized_menus) or \
                        len(set(new_order_indices)) != len(st.session_state.finalized_menus) or \
@@ -505,11 +818,11 @@ def show_menu_upload_page():
                             menu_item = original_ordered_menus[original_idx_to_pick]
                             reordered_menus_temp[new_pos] = menu_item
                             reordered_menus_temp[new_pos]['order'] = new_pos # orderプロパティも新しい順序に更新
-                        
+
                         st.session_state.finalized_menus = reordered_menus_temp
                         # IDを新しい並び順で振り直し (重要: UIのkeyを確実にユニークにするため)
                         for i, menu in enumerate(st.session_state.finalized_menus):
-                             menu['id'] = i 
+                             menu['id'] = i
                         st.success("✅ 並び順を更新しました！")
                         st.rerun() # 更新された並び順で表示を更新
 
@@ -657,7 +970,7 @@ def process_thoughts_summary(answers_dict): # 引数を辞書に変更
     """
     st.info("想いをまとめる中...")
     time.sleep(1) # シミュレーションのための待機時間
-    
+
     # finalized_menusから最初のメニュー名を取得（存在しない場合も考慮）
     if 'finalized_menus' in st.session_state and st.session_state.finalized_menus:
         first_menu_name = st.session_state.finalized_menus[0]['name']
@@ -680,7 +993,7 @@ def translate_thoughts_immediately(text):
     """
     st.info("想いを多言語に展開中...")
     time.sleep(1.5) # シミュレーションのための待機時間
-    
+
     # 翻訳結果のモックデータ生成 (指定された14言語)
     if 'finalized_menus' in st.session_state and st.session_state.finalized_menus:
         first_menu_name_eng = st.session_state.finalized_menus[0]['name'] # 英語版はそのまま使う
@@ -701,7 +1014,7 @@ def translate_thoughts_immediately(text):
         "ドイツ語": f"Unser Ziel ist es, unseren Kunden ein unvergessliches Erlebnis zu bieten, indem wir herzerwärmende Gerichte anbieten, die mit sorgfältig ausgewählten Zutaten und akribischen Kochmethoden zubereitet werden. Unser '{first_menu_name_eng}' ist insbesondere ein Gericht voller unserer Leidenschaft.",
         "フランス語": f"Notre objectif est d'offrir une expérience inoubliable à nos clients, en proposant des plats réconfortants préparés avec des ingrédients soigneusement sélectionnés et des méthodes de cuisson méticuleuses. Notre '{first_menu_name_eng}', en particulier, est un plat rempli de notre passion.",
         "イタリア語": f"Il nostro obiettivo è offrire un'esperienza indimenticabile ai nostri clienti, proponendo piatti confortanti preparati con ingredienti selezionati con cura e metodi di cottura meticolosi. Il nostro '{first_menu_name_eng}', in particolare, è un piatto pieno della nostra passione.",
-        "ポルトガル語": f"Nosso objetivo é proporcionar uma experiência inesquecível aos nossos clientes, oferecendo pratos reconfortantes feitos com ingredientes cuidadosamente selecionados e métodos de cozimento meticulosos. Nosso '{first_menu_name_eng}', em particular, é um prato cheio de nossa paixão.",
+        "ポルトガル語": f"Nosso objetivo é proporcionar uma experiência inesquecível aos nossos clientes, oferecendo pratos reconfortantes feitos com ingredientes cuidadosamente selectedos e métodos de cozimento meticulosos. Nosso '{first_menu_name_eng}', em particular, é um prato cheio de nossa paixão.",
     }
     return mock_translations
 
@@ -727,7 +1040,7 @@ def show_owner_thoughts_page():
         <p>スマートフォンをお使いの場合、音声入力で簡単に回答できます。</p>
     </div>
     """, unsafe_allow_html=True)
-    
+
     st.info("15問の質問にお答えいただき、お店の想いを世界に伝えましょう！")
 
     # 質問データを取得
@@ -741,7 +1054,7 @@ def show_owner_thoughts_page():
         for category_key in questions_data:
             for q_item in questions_data[category_key]["questions"]:
                 st.session_state.owner_answers_dict[q_item["key"]] = ""
-    
+
     if 'summarized_thought' not in st.session_state:
         st.session_state.summarized_thought = "" # 要約した店主の想い
     if 'translated_thoughts' not in st.session_state:
@@ -750,7 +1063,7 @@ def show_owner_thoughts_page():
         st.session_state.allergy_policy = None # アレルギー情報の表示方針
 
     st.subheader("質問に答えて、お店の想いを教えてください")
-    
+
     # カテゴリごとに質問を表示
     for category_key, category_info in questions_data.items():
         st.markdown(f"### {category_info['title']}")
@@ -799,7 +1112,7 @@ def show_owner_thoughts_page():
             height=200, # テキストエリアの高さ
             key="final_owner_thought_edit"
         )
-        
+
         # 翻訳開始ボタン
         if st.button("この想いで確定し、多言語で展開する", key="confirm_and_translate_button"):
             if st.session_state.summarized_thought.strip() != "":
@@ -815,7 +1128,7 @@ def show_owner_thoughts_page():
         st.markdown("---")
         st.subheader("アレルギー情報の表示方針")
         st.info("メニューのアレルギー情報を、外国人のお客様に表示するかどうかを決定してください。")
-        
+
         # allergy_policy の初期値を適切に設定
         initial_allergy_index = 0
         if st.session_state.allergy_policy == "not_display":
@@ -833,7 +1146,7 @@ def show_owner_thoughts_page():
         else:
             st.session_state.allergy_policy = "not_display"
             st.warning("アレルギー情報はメニューに表示されません。")
-        
+
     st.markdown("---")
     # ナビゲーションボタン (戻る/次へ)
     col_prev, col_next = st.columns([1, 1])
@@ -863,7 +1176,7 @@ def generate_description_from_owner_thought(owner_thought, menu_name):
     """
     st.info(f"「{menu_name}」の食べ方説明を想定しています...")
     time.sleep(1)
-    
+
     # モックの生成ロジック。実際の生成ではより高度な処理が必要。
     base_description = f"{owner_thought[:50]}...という店主の想いから、{menu_name}が生まれました。"
     if "唐揚げ" in menu_name:
@@ -874,7 +1187,7 @@ def generate_description_from_owner_thought(owner_thought, menu_name):
         description = base_description + "特製のスープは、長時間煮込んだ秘伝の出汁が決め手です。一口目には、濃厚な旨味が口いっぱいに広がり、思わず唸ってしまうことでしょう。二口目には、コシのある麺と絡み合い、それぞれの具材の豊かな風味が加わり、箸が止まらなくなる至福の一杯です。ぜひ最後までスープを飲み干してください。"
     else:
         description = base_description + "一口食べれば、素材の持つ本来の味と、店主の温かい心が伝わる優しい味わいが広がります。二口目には、奥深いコクと香りが口いっぱいに満ちて、忘れられない感動を味わえるでしょう。ぜひ、この特別な一品をご体験ください。"
-    
+
     # 160字に調整（簡易的な処理）
     return description[:160] # 最大160文字に切り詰める
 
@@ -911,7 +1224,7 @@ def show_detailed_settings_page():
                 "ai_description_approved": False, # 生成説明の承認フラグ
                 "ai_description_generated": False, # AIによる説明が生成されたかどうかのフラグ
             })
-    
+
     # アレルギー物質リスト (例)
     ALLERGENS = [
         "卵", "乳", "小麦", "そば", "落花生", "えび", "かに",
@@ -930,7 +1243,7 @@ def show_detailed_settings_page():
             st.write(f"**メニュー名**: {menu['name']}")
             st.write(f"**価格**: {menu['price']}")
             st.write(f"**カテゴリー**: {menu['category']}")
-            
+
             # メニュー写真のアップロード
             # TODO: 実際のファイルアップロード機能とS3/GCSなどへの保存ロジックを実装
             st.info("メニュー写真をアップロードしてください（任意）。")
@@ -942,7 +1255,7 @@ def show_detailed_settings_page():
             if uploaded_photo:
                 # ここでS3やGCSなどにアップロードし、URLをmenu['photo_url']に保存する
                 # 現状はダミーURL
-                st.image(uploaded_photo, caption=f"{menu['name']} の写真", width=200)
+                st.image(uploaded_photo, caption=f"{menu['name']} の写真", use_container_width=True)
                 menu['photo_url'] = f"https://dummy-image-url.com/{menu['id']}_{uploaded_photo.name}"
                 st.success("写真がアップロードされました！ (ダミー保存)")
 
@@ -959,7 +1272,7 @@ def show_detailed_settings_page():
                 menu['ai_description_generated'] = True
                 menu['ai_description_approved'] = False # 生成されたばかりなので未承認
                 # st.rerun() # 自動生成の場合はrerunしない
-            
+
             # 常にテキストエリアは表示し、承認済みかどうかでdisabledを切り替える
             menu['description_jp'] = st.text_area(
                 f"{menu['name']} の詳細説明（日本語）",
@@ -968,7 +1281,7 @@ def show_detailed_settings_page():
                 key=f"description_jp_{menu['id']}_edit",
                 disabled=menu['ai_description_approved'] # 承認済みなら編集不可
             )
-            
+
             # 承認・訂正ボタン
             if not menu['ai_description_approved']:
                 col_approve, col_edit_done = st.columns([1, 1])
@@ -1003,9 +1316,9 @@ def show_detailed_settings_page():
                 st.warning("アレルギー情報を表示しない設定です。このメニューのアレルギー物質は表示されません。")
                 st.write("アレルギー情報の設定は行いません。")
                 menu['allergens'] = [] # 表示しない場合はデータをクリアしておく
-            
+
             updated_detailed_menus.append(menu)
-    
+
     st.session_state.detailed_menus = updated_detailed_menus
 
     st.markdown("---")
@@ -1092,7 +1405,7 @@ def show_completion_page():
 
     # 選択可能なメニューリストを準備
     recommended_menu_options = [menu['name'] for menu in st.session_state.get('detailed_menus', []) if menu['should_introduce']]
-    
+
     if recommended_menu_options:
         # 以前に選択されたメニューがあれば、それをデフォルトに設定
         default_index = 0
@@ -1118,7 +1431,7 @@ def show_completion_page():
     st.markdown("---")
     st.subheader("最終処理と請求書・領収書")
     st.info("全ての情報が揃いました。最終処理を実行します。")
-    
+
     # 「完了」ボタン。押されたら裏の作業が始まるという想定。
     if st.button("完了", key="complete_process_button"):
         with st.spinner("最終処理を実行中..."):
@@ -1166,7 +1479,7 @@ def main_flow():
         st.session_state.logged_in = False
     if 'current_step' not in st.session_state:
         st.session_state.current_step = 0
-    
+
     # finalized_menus が存在しない、または不完全な場合に初期化
     # これは、ユーザーが途中のステップから開始したり、セッションがリセットされた場合に備えるため
     # OCR結果のモックデータ MOCK_OCR_RESULTS とカテゴリーリスト MENU_CATEGORIES を使用
@@ -1175,7 +1488,7 @@ def main_flow():
         # OCR結果が初期化されていない場合のみ、モックデータで初期化
         if 'ocr_results' not in st.session_state or not st.session_state.ocr_results:
              st.session_state.ocr_results = MOCK_OCR_RESULTS # モックデータで初期化
-        
+
         for i, item in enumerate(st.session_state.ocr_results):
             st.session_state.finalized_menus.append({
                 "id": i,
@@ -1186,13 +1499,13 @@ def main_flow():
                 "should_introduce": True, # デフォルトで掲載する
                 "order": i # 初期表示順
             })
-    
+
     # detailed_menus が存在しない、または finalized_menus との整合性が取れていない場合に初期化
     # finalized_menus の内容が変わった場合にも対応できるよう、常に finalized_menus をベースに再構築を試みる
     if 'detailed_menus' not in st.session_state or \
        len(st.session_state.detailed_menus) != len(st.session_state.finalized_menus) or \
        any(dm['name'] != fm['name'] for dm, fm in zip(st.session_state.detailed_menus, st.session_state.finalized_menus)):
-        
+
         # 既存の詳細データを保持しつつ、新しい finalized_menus に基づいて更新するロジック
         existing_detailed_map = {item['id']: item for item in st.session_state.get('detailed_menus', [])}
         new_detailed_menus = []
@@ -1237,4 +1550,4 @@ def main_flow():
 if __name__ == "__main__":
     # Streamlitのキャッシュクリア (開発中に変更が反映されない場合などに利用)
     # st.cache_data.clear() # 必要に応じてコメントを解除
-    main_flow()   
+    main_flow()
