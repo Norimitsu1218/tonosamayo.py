@@ -14,6 +14,14 @@ def load_ps3_styles():
         min-height: 100vh;
     }
     
+    .stApp {
+        background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0f1419 100%);
+    }
+    
+    .stApp > div {
+        background: transparent;
+    }
+    
     .ps3-card {
         background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
         border: 1px solid rgba(59, 130, 246, 0.3);
@@ -251,42 +259,34 @@ def render_plan_selection():
 def render_login():
     st.markdown('<div class="ps3-card">', unsafe_allow_html=True)
     st.markdown('<h1 class="ps3-header">🖥️ TONOSAMA</h1>', unsafe_allow_html=True)
-    st.markdown('<p style="text-align: center; color: #3b82f6; font-size: 1.2rem;">東大レベル翻訳システム</p>', unsafe_allow_html=True)
-    
-    # セッション状態の初期化（エラー修正）
-    if 'login_store_id' not in st.session_state:
-        st.session_state.login_store_id = ""
-    if 'login_member_number' not in st.session_state:
-        st.session_state.login_member_number = ""
+    st.markdown('<p style="text-align: center; color: #3b82f6; font-size: 1.2rem;">高性能翻訳システム</p>', unsafe_allow_html=True)
     
     st.markdown('<h3 style="color: #3b82f6;">🛡️ ストアID</h3>', unsafe_allow_html=True)
-    store_id = st.text_input("", placeholder="例: TONOSAMA001", value=st.session_state.login_store_id, key="store_id_input")
+    store_id = st.text_input("ストアIDを入力", placeholder="例: TONOSAMA001", key="login_store_id")
     
     st.markdown('<h3 style="color: #3b82f6;">🛡️ 責任者ナンバー</h3>', unsafe_allow_html=True)
-    member_number = st.text_input("", type="password", placeholder="例: 99999", value=st.session_state.login_member_number, key="member_number_input")
-    
-    # セッション状態更新（安全な方法）
-    st.session_state.login_store_id = store_id
-    st.session_state.login_member_number = member_number
+    member_number = st.text_input("責任者ナンバーを入力", type="password", placeholder="例: 99999", key="login_member_number")
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        login_clicked = st.button("⚡ システムログイン", use_container_width=True, type="primary")
-    
-    if login_clicked and store_id and member_number:
-        with st.spinner("認証中..."):
-            time.sleep(1)  # 認証処理シミュレーション
-            if authenticate_credentials(store_id, member_number):
-                st.session_state.logged_in = True
-                st.session_state.store_id = store_id
-                st.session_state.current_step = 2
-                st.success("✅ ログイン成功！")
-                time.sleep(0.5)
-                st.rerun()
+        if st.button("⚡ システムログイン", use_container_width=True, type="primary"):
+            if store_id and member_number:
+                with st.spinner("認証中..."):
+                    time.sleep(1)
+                    if authenticate_credentials(store_id, member_number):
+                        # セッション状態を安全に更新
+                        st.session_state.update({
+                            'logged_in': True,
+                            'store_id': store_id,
+                            'current_step': 2
+                        })
+                        st.success("✅ ログイン成功！")
+                        time.sleep(0.5)
+                        st.rerun()
+                    else:
+                        st.error("❌ ログイン情報が正しくありません")
             else:
-                st.error("❌ ログイン情報が正しくありません")
-    elif login_clicked:
-        st.warning("⚠️ ストアIDと責任者ナンバーを入力してください")
+                st.warning("⚠️ ストアIDと責任者ナンバーを入力してください")
     
     st.markdown('<div style="text-align: center; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;"><div style="font-size: 1.2rem;">🛡️</div>あなたの情報は暗号化されて安全に保護されます</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -684,7 +684,7 @@ def main():
     # フッター
     st.markdown("""
     <div style="text-align: center; margin-top: 3rem; padding: 2rem; color: #6b7280; border-top: 1px solid #374151;">
-        <p>🏮 TONOSAMA 東大レベル翻訳システム | 約束を守ることの大事さを知っている人へ</p>
+        <p>🏮 TONOSAMA 高性能翻訳システム | 約束を守ることの大事さを知っている人へ</p>
         <p style="font-size: 0.9rem;">美しいお店作りを心より応援しております</p>
     </div>
     """, unsafe_allow_html=True)
