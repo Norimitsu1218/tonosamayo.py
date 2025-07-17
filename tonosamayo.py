@@ -253,27 +253,40 @@ def render_login():
     st.markdown('<h1 class="ps3-header">🖥️ TONOSAMA</h1>', unsafe_allow_html=True)
     st.markdown('<p style="text-align: center; color: #3b82f6; font-size: 1.2rem;">東大レベル翻訳システム</p>', unsafe_allow_html=True)
     
-    with st.form("login_form"):
-        st.markdown('<h3 style="color: #3b82f6;">🛡️ ストアID</h3>', unsafe_allow_html=True)
-        store_id = st.text_input("", placeholder="例: TONOSAMA001", key="store_id")
-        
-        st.markdown('<h3 style="color: #3b82f6;">🛡️ 責任者ナンバー</h3>', unsafe_allow_html=True)
-        member_number = st.text_input("", type="password", placeholder="例: 99999", key="member_number")
-        
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            login_submitted = st.form_submit_button("⚡ システムログイン", use_container_width=True)
-        
-        if login_submitted:
+    # セッション状態の初期化（エラー修正）
+    if 'login_store_id' not in st.session_state:
+        st.session_state.login_store_id = ""
+    if 'login_member_number' not in st.session_state:
+        st.session_state.login_member_number = ""
+    
+    st.markdown('<h3 style="color: #3b82f6;">🛡️ ストアID</h3>', unsafe_allow_html=True)
+    store_id = st.text_input("", placeholder="例: TONOSAMA001", value=st.session_state.login_store_id, key="store_id_input")
+    
+    st.markdown('<h3 style="color: #3b82f6;">🛡️ 責任者ナンバー</h3>', unsafe_allow_html=True)
+    member_number = st.text_input("", type="password", placeholder="例: 99999", value=st.session_state.login_member_number, key="member_number_input")
+    
+    # セッション状態更新（安全な方法）
+    st.session_state.login_store_id = store_id
+    st.session_state.login_member_number = member_number
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        login_clicked = st.button("⚡ システムログイン", use_container_width=True, type="primary")
+    
+    if login_clicked and store_id and member_number:
+        with st.spinner("認証中..."):
+            time.sleep(1)  # 認証処理シミュレーション
             if authenticate_credentials(store_id, member_number):
                 st.session_state.logged_in = True
                 st.session_state.store_id = store_id
                 st.session_state.current_step = 2
-                st.markdown('<div class="success-message">✅ ログイン成功！</div>', unsafe_allow_html=True)
-                time.sleep(1)
+                st.success("✅ ログイン成功！")
+                time.sleep(0.5)
                 st.rerun()
             else:
-                st.markdown('<div class="error-message">❌ ログイン情報が正しくありません</div>', unsafe_allow_html=True)
+                st.error("❌ ログイン情報が正しくありません")
+    elif login_clicked:
+        st.warning("⚠️ ストアIDと責任者ナンバーを入力してください")
     
     st.markdown('<div style="text-align: center; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem;"><div style="font-size: 1.2rem;">🛡️</div>あなたの情報は暗号化されて安全に保護されます</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
