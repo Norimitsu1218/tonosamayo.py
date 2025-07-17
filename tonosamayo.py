@@ -10,7 +10,7 @@ import { Badge } from './components/ui/badge';
 import { Progress } from './components/ui/progress';
 import { Separator } from './components/ui/separator';
 import { 
-  AlertCircle, CheckCircle, Upload, ArrowLeft, ArrowRight, Star, Download, 
+  AlertCircle, CheckCircle, Upload, ArrowLeft, ArrowRight, Star, 
   Zap, Shield, Cpu, Mic, Crown, Sparkles, Globe, Gift
 } from 'lucide-react';
 
@@ -57,14 +57,9 @@ interface Plan {
 // Configuration constants
 const CONFIG = {
   commonAllergens: [
-    "卵 (Egg)", "乳 (Milk)", "小麦 (Wheat)", "そば (Buckwheat)",
-    "落花生 (Peanut)", "えび (Shrimp)", "かに (Crab)", "アーモンド (Almond)",
-    "あわび (Abalone)", "いか (Squid)", "いくら (Salmon Roe)", "オレンジ (Orange)",
-    "カシューナッツ (Cashew Nut)", "キウイフルーツ (Kiwi Fruit)", "牛肉 (Beef)",
-    "くるみ (Walnut)", "ごま (Sesame)", "さけ (Salmon)", "さば (Mackerel)",
-    "大豆 (Soybean)", "鶏肉 (Chicken)", "バナナ (Banana)", "豚肉 (Pork)",
-    "まつたけ (Matsutake Mushroom)", "もも (Peach)", "やまいも (Yam)",
-    "りんご (Apple)", "ゼラチン (Gelatin)"
+    "小麦", "甲殻類", "卵", "魚", "大豆", "ピーナッツ", 
+    "牛乳", "くるみ", "セロリ", "マスタード", "ゴマ", 
+    "亜硫酸塩", "ルピナス", "貝"
   ],
   menuCategories: ["フード", "コース", "ランチ", "デザート", "ドリンク"],
   plans: [
@@ -108,7 +103,7 @@ const performOCR = async (file: File): Promise<MenuData[]> => {
       price: "980円",
       category: "フード",
       order: 0,
-      allergens: ["小麦 (Wheat)", "大豆 (Soybean)"],
+      allergens: ["小麦", "大豆"],
       multilingualDescriptions: { "日本語": "唐揚げ定食" },
       isFeatured: false,
       shouldIntroduce: true
@@ -119,7 +114,7 @@ const performOCR = async (file: File): Promise<MenuData[]> => {
       price: "1200円",
       category: "フード",
       order: 1,
-      allergens: ["魚 (Fish)"],
+      allergens: ["魚"],
       multilingualDescriptions: { "日本語": "焼き魚御膳" },
       isFeatured: false,
       shouldIntroduce: true
@@ -130,7 +125,7 @@ const performOCR = async (file: File): Promise<MenuData[]> => {
       price: "850円",
       category: "フード",
       order: 2,
-      allergens: ["小麦 (Wheat)", "卵 (Egg)"],
+      allergens: ["小麦", "卵"],
       multilingualDescriptions: { "日本語": "特製ラーメン" },
       isFeatured: false,
       shouldIntroduce: true
@@ -171,7 +166,7 @@ export default function App() {
   const [featuredMenus, setFeaturedMenus] = useState<MenuData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [csvGenerated, setCsvGenerated] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const steps = ["プラン", "ログイン", "メニュー", "詳細設定", "店主の想い", "イチオシ", "完成！"];
 
@@ -353,7 +348,7 @@ export default function App() {
 
     return (
       <div className="w-full max-w-md mx-auto">
-        <div className="ps3-card p-8 ps3-float">
+        <div className="ps3-card p-8">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <Cpu className="w-12 h-12 text-blue-400 mr-3" />
@@ -432,7 +427,7 @@ export default function App() {
     );
   };
 
-  // Step 2: Menu Upload (unchanged)
+  // Step 2: Menu Upload
   const MenuUploadStep = () => {
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -589,6 +584,27 @@ export default function App() {
                       </Select>
                     </div>
                     
+                    <div>
+                      <Label className="text-gray-300 mb-3 block">アレルギー情報</Label>
+                      <div className="grid grid-cols-4 gap-3">
+                        {CONFIG.commonAllergens.map(allergen => (
+                          <div key={allergen} className="flex items-center space-x-2">
+                            <Checkbox
+                              checked={menu.allergens.includes(allergen)}
+                              onCheckedChange={(checked) => {
+                                const newAllergens = checked
+                                  ? [...menu.allergens, allergen]
+                                  : menu.allergens.filter(a => a !== allergen);
+                                updateMenu(menu.id, 'allergens', newAllergens);
+                              }}
+                              className="border-blue-400"
+                            />
+                            <Label className="text-sm text-gray-300">{allergen}</Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
                     <div className="flex items-center space-x-3">
                       <Checkbox
                         checked={menu.shouldIntroduce}
@@ -629,7 +645,7 @@ export default function App() {
     );
   };
 
-  // Step 3: Detail Settings (moved before Owner Thoughts)
+  // Step 3: Detail Settings
   const DetailSettingsStep = () => {
     return (
       <div className="w-full max-w-4xl mx-auto">
@@ -727,7 +743,7 @@ export default function App() {
     );
   };
 
-  // Step 4: Owner Thoughts (15 questions, all required)
+  // Step 4: Owner Thoughts
   const OwnerThoughtsStep = () => {
     const questionSections = [
       {
@@ -949,7 +965,7 @@ export default function App() {
     );
   };
 
-  // Step 5: Featured Menus (unchanged)
+  // Step 5: Featured Menus
   const FeaturedMenusStep = () => {
     const updateFeaturedMenu = (id: number, field: keyof MenuData, value: any) => {
       setFeaturedMenus(prev => prev.map(menu => 
@@ -1082,39 +1098,71 @@ export default function App() {
 
   // Step 6: Completion
   const CompletionStep = () => {
-    const generateCSV = async () => {
+    const handleCompletion = async () => {
       setIsLoading(true);
       try {
-        // Simulate translation and CSV generation
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        setCsvGenerated(true);
+        // Simulate processing
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setIsCompleted(true);
       } catch (err) {
-        setError("CSV生成に失敗しました");
+        setError("完成処理に失敗しました");
       } finally {
         setIsLoading(false);
       }
     };
 
-    const downloadCSV = () => {
-      // Create mock CSV data
-      const headers = ["メニュー名_日本語", "価格", "カテゴリ", "おすすめ"];
-      const rows = menus.map(menu => [
-        menu.name,
-        menu.price,
-        menu.category,
-        menu.isFeatured ? "TRUE" : "FALSE"
-      ]);
-      
-      const csvContent = [headers, ...rows]
-        .map(row => row.join(","))
-        .join("\n");
-      
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `tonosama_menu_data_${storeId}_${new Date().toISOString().slice(0, 10)}.csv`;
-      link.click();
-    };
+    if (isCompleted) {
+      return (
+        <div className="w-full max-w-4xl mx-auto space-y-8">
+          <div className="ps3-card p-8 text-center">
+            <div className="mb-8">
+              <div className="flex items-center justify-center mb-6">
+                <Gift className="w-20 h-20 text-green-400 mr-4" />
+                <div>
+                  <h1 className="text-6xl font-bold bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                    完成！
+                  </h1>
+                  <p className="text-2xl text-green-300">
+                    🎉 おめでとうございます！🎉
+                  </p>
+                </div>
+              </div>
+              <p className="text-xl text-gray-300 mb-8">
+                多言語メニューの準備が完了しました！<br/>
+                世界中のお客様に素晴らしい体験をお届けください！
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="glass-effect p-6 rounded-lg">
+                <h3 className="text-2xl font-bold text-blue-300 mb-4">完了内容</h3>
+                <div className="grid grid-cols-2 gap-6 text-left">
+                  <div>
+                    <p><span className="text-blue-300">プラン:</span> {CONFIG.plans.find(p => p.id === selectedPlan)?.name}</p>
+                    <p><span className="text-blue-300">店名:</span> {ownerAnswers.restaurant_name}</p>
+                    <p><span className="text-blue-300">メニュー数:</span> {menus.filter(m => m.shouldIntroduce).length}品</p>
+                  </div>
+                  <div>
+                    <p><span className="text-blue-300">イチオシ:</span> {featuredMenus.length}品</p>
+                    <p><span className="text-blue-300">想いの回答:</span> 15/15 完了</p>
+                    <p><span className="text-blue-300">アレルギー設定:</span> 完了</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-2xl text-green-300 font-bold">
+                システム処理が完了しました！
+              </div>
+              
+              <p className="text-lg text-gray-300">
+                多言語対応メニューの作成が正常に完了いたしました。<br/>
+                素晴らしいお店作りを心より応援しております！
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="w-full max-w-4xl mx-auto space-y-8">
@@ -1127,7 +1175,7 @@ export default function App() {
               </h1>
             </div>
             <p className="text-xl text-gray-300">
-              おめでとうございます！多言語メニューの準備が完了しました
+              いよいよ最終ステップです！
             </p>
           </div>
           
@@ -1162,48 +1210,31 @@ export default function App() {
             <div className="w-full h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent"></div>
 
             <div className="text-center space-y-6">
-              {!csvGenerated ? (
-                <button
-                  onClick={generateCSV}
-                  disabled={isLoading}
-                  className={`ps3-button px-12 py-4 text-xl font-bold ${
-                    isLoading 
-                      ? 'opacity-50 cursor-not-allowed' 
-                      : 'hover:scale-105'
-                  }`}
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center space-x-3">
-                      <div className="ps3-loading"></div>
-                      <span>AI翻訳エンジン実行中...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center space-x-3">
-                      <Sparkles className="w-6 h-6" />
-                      <span>完成！</span>
-                    </div>
-                  )}
-                </button>
-              ) : (
-                <div className="space-y-6">
-                  <div className="ps3-success flex items-center justify-center space-x-3 text-2xl">
-                    <CheckCircle size={32} />
-                    <span>多言語メニューが完成しました！</span>
+              <button
+                onClick={handleCompletion}
+                disabled={isLoading}
+                className={`ps3-button px-16 py-6 text-2xl font-bold ${
+                  isLoading 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:scale-105'
+                }`}
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center space-x-3">
+                    <div className="ps3-loading"></div>
+                    <span>処理中...</span>
                   </div>
-                  <button
-                    onClick={downloadCSV}
-                    className="ps3-button px-12 py-4 text-xl font-bold bg-green-600 hover:bg-green-700 hover:scale-105 flex items-center space-x-3"
-                  >
-                    <Download size={24} />
-                    <span>CSVファイルをダウンロード</span>
-                  </button>
-                  <div className="text-center">
-                    <p className="text-lg text-green-300">
-                      🎉 世界中のお客様に素晴らしい体験をお届けください！
-                    </p>
+                ) : (
+                  <div className="flex items-center justify-center space-x-3">
+                    <Sparkles className="w-8 h-8" />
+                    <span>完成！</span>
                   </div>
-                </div>
-              )}
+                )}
+              </button>
+              
+              <p className="text-gray-400">
+                ボタンを押すと多言語メニューの作成が完了します
+              </p>
             </div>
           </div>
         </div>
